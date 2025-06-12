@@ -1,4 +1,4 @@
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,39 +8,39 @@
 @layer base {
   :root {
     --background: 222 84% 5%;
-    --foreground: 215 28% 85%;
+    --foreground: 215 28% 88%;
 
     --card: 222 84% 8%;
-    --card-foreground: 215 28% 85%;
+    --card-foreground: 215 28% 95%;
 
     --popover: 222 84% 8%;
     --popover-foreground: 215 28% 85%;
 
-    --primary: 220 70% 50%;
+    --primary: 249 80% 54%; /* deep violet */
     --primary-foreground: 215 28% 95%;
 
-    --secondary: 222 84% 12%;
-    --secondary-foreground: 215 28% 85%;
+    --secondary: 258 100% 42%; /* light violet */
+    --secondary-foreground: 215 28% 88%;
 
     --muted: 222 84% 12%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 200 100% 40%;
+    --accent: 258 100% 54%;
     --accent-foreground: 215 28% 95%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 222 84% 15%;
-    --input: 222 84% 15%;
-    --ring: 220 70% 50%;
+    --border: 249 80% 70%;
+    --input: 249 80% 70%;
+    --ring: 249 80% 80%;
 
     --radius: 0.75rem;
 
-    --sleep-gradient: linear-gradient(135deg, hsl(220, 70%, 20%), hsl(200, 100%, 15%));
-    --dawn-gradient: linear-gradient(135deg, hsl(200, 100%, 40%), hsl(220, 70%, 50%));
-    --twilight: hsl(220, 70%, 20%);
-    --moonlight: hsl(200, 100%, 40%);
+    --sleep-gradient: linear-gradient(135deg, hsl(249, 80%, 49%), hsl(258, 100%, 40%));
+    --dawn-gradient: linear-gradient(135deg, hsl(258, 100%, 40%), hsl(249, 80%, 49%));
+    --twilight: hsl(249, 80%, 49%);
+    --moonlight: hsl(258, 100%, 40%);
   }
 }
 
@@ -53,12 +53,23 @@
     @apply bg-background text-foreground;
     background: var(--sleep-gradient);
     min-height: 100vh;
+    font-size: 16px;
+    padding: 0;
   }
 }
 
 @layer utilities {
   .sleep-card {
-    @apply bg-card/80 backdrop-blur-lg border border-border/50 rounded-xl;
+    @apply bg-card/80 backdrop-blur-lg border rounded-xl;
+    width: 100%;
+    max-width: 420px;
+    margin: 1em auto;
+    border: 2.5px solid hsl(var(--border));
+    box-shadow: 0 2px 24px 0 hsl(249 80% 30% / 0.36);
+    /* Remove duplicate margin and padding, use only here for sleep-card */
+    padding: 2em 1.5em;
+    position: relative;
+    z-index: 1;
   }
   
   .sleep-gradient {
@@ -68,4 +79,246 @@
   .dawn-gradient {
     background: var(--dawn-gradient);
   }
+}
+
+/* --- Food/Module Card Improvements --- */
+.food-card, .module-card, .enhanced-card {
+  background: linear-gradient(135deg, hsl(var(--card) / 0.98), hsl(var(--card) / 0.93));
+  border: 2.5px solid hsl(var(--accent));
+  box-shadow:
+      0 0 0 2px hsl(var(--accent) / 0.18),
+      0 6px 36px 0 hsl(var(--accent) / 0.16);
+  border-radius: 1.4em;
+  color: hsl(var(--card-foreground));
+  margin: 1.5em auto;
+  padding: 1.5em 1.2em;
+  max-width: 500px;
+  transition: box-shadow 0.18s, border-color 0.18s;
+  position: relative;
+}
+
+.food-card:hover, .module-card:hover, .enhanced-card:hover {
+  box-shadow:
+    0 0 0 4.5px hsl(var(--accent) / 0.32),
+    0 12px 48px 0 hsl(var(--accent) / 0.24);
+  border-color: hsl(var(--primary));
+  z-index: 2;
+}
+
+.food-card .title,
+.module-card .title,
+.enhanced-card .title {
+  color: hsl(var(--primary-foreground));
+  font-weight: 700;
+  font-size: 1.22em;
+  text-shadow: 0 2px 10px hsl(var(--primary) / 0.44);
+  letter-spacing: 0.03em;
+}
+
+.food-card .meta,
+.module-card .meta,
+.enhanced-card .meta {
+  color: hsl(var(--accent));
+  font-size: 0.98em;
+  font-weight: 600;
+}
+
+.food-card .desc,
+.module-card .desc,
+.enhanced-card .desc {
+  color: hsl(var(--card-foreground));
+  text-shadow: 0 1px 4px hsl(var(--primary) / 0.22);
+  font-size: 1em;
+  margin-top: 0.65em;
+  margin-bottom: 0.55em;
+}
+
+.food-card .badge,
+.module-card .badge,
+.enhanced-card .badge {
+  border: 1.5px solid hsl(var(--accent));
+  border-radius: 1em;
+  padding: 0.1em 0.75em;
+  margin-left: 0.5em;
+  font-size: 0.75em;
+  background: hsl(var(--accent) / 0.13);
+  color: hsl(var(--accent));
+  font-weight: bold;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* --- General Card, Button, and Text Glow/Border Improvements --- */
+.card, .module, .popover, .sleep-card {
+  border: 2.5px solid hsl(var(--border), 0.7);
+  box-shadow: 0 2px 24px 0 hsl(249 80% 30% / 0.36);
+  border-radius: 1.2em;
+  background-clip: padding-box;
+}
+
+button, .btn, .Button {
+  border: 2px solid hsl(var(--border), 0.8);
+  border-radius: 0.7em;
+  color: hsl(var(--primary-foreground));
+  background: linear-gradient(90deg, hsl(var(--primary) / 0.85), hsl(var(--secondary) / 0.85));
+  box-shadow: 0 2px 8px 0 hsl(249 80% 30% / 0.18);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+button:hover, .btn:hover, .Button:hover {
+  background: linear-gradient(90deg, hsl(var(--secondary)), hsl(var(--primary)));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--accent));
+  box-shadow: 0 4px 20px 0 hsl(var(--accent) / 0.22);
+}
+
+input, select {
+  border: 2px solid hsl(var(--border), 0.7);
+  border-radius: 0.5em;
+  background: hsl(var(--card) / 0.9);
+  color: hsl(var(--card-foreground));
+  font-weight: 500;
+  padding: 0.5em 1em;
+}
+
+label, h2, h3, h4, h5 {
+  color: hsl(var(--primary-foreground));
+  text-shadow: 0 2px 8px hsl(249 80% 10% / 0.4);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+strong, b, .highlight {
+  color: hsl(var(--primary));
+  text-shadow: 0 2px 8px hsl(249 80% 50% / 0.24);
+}
+
+.card, .sleep-card, .popover {
+  color: hsl(var(--card-foreground));
+  text-shadow: 0 1px 3px hsl(249 80% 10% / 0.2);
+}
+
+/* General element responsiveness */
+button, .card, .sleep-card {
+  width: 100%;
+  max-width: 400px;
+  margin: 1em auto;
+  font-size: 1em;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* --- Button Group Row Fixes --- */
+.sleep-card .flex {
+  flex-wrap: wrap;
+  gap: 0.5em;
+  justify-content: center;
+}
+.sleep-card button,
+.sleep-card .btn,
+.sleep-card .Button {
+  flex: 1 1 120px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* --- Mobile fixes for buttons and layout --- */
+@media (max-width: 600px) {
+  body {
+    font-size: 15px;
+    padding: 0 4vw;
+  }
+  #root {
+    padding: 1rem 0;
+  }
+  .card, .sleep-card, .food-card, .module-card, .enhanced-card {
+    padding: 1em;
+    font-size: 0.97em;
+    max-width: 100vw;
+  }
+  button, .sleep-card button,
+  .sleep-card .btn,
+  .sleep-card .Button {
+    padding: 12px 0;
+    font-size: 1.1em;
+    width: 100% !important;
+    min-width: 0;
+    margin-bottom: 0.5rem;
+  }
+  /* Stack flex elements inside sleep-card vertically (for Sleep SOS and similar) */
+  .sleep-card .flex,
+  .sleep-card .flex.justify-around,
+  .sleep-card .flex.space-x-4 {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    align-items: stretch !important;
+  }
+}
+@keyframes fadein-intro {
+  from { opacity: 0; transform: translateY(-40px) scale(0.95);}
+  to   { opacity: 1; transform: translateY(0) scale(1);}
+}
+
+.fadein-intro {
+  animation: fadein-intro 1.4s cubic-bezier(0.33,0.55,0.22,0.92) 0.1s both;
+}
+
+@keyframes moon-glow {
+  0%, 100% { filter: drop-shadow(0 0 24px #bfaaff99); }
+  50%      { filter: drop-shadow(0 0 38px #fff3bbcc); }
+}
+.moon-animate {
+  animation: moon-glow 2.8s ease-in-out infinite;
+}
+
+.text-shadow-glow {
+  text-shadow:
+    0 2px 16px #bfaaff88,
+    0 1px 4px #fff7b2cc;
+}
+
+/* --- Sleep SOS white glow for main card --- */
+.sleep-card.glow, .sleep-card.glow-white {
+  box-shadow:
+    0 0 0 4px #fff6,
+    0 0 32px 10px #fff2,
+    0 2px 24px 0 hsl(249 80% 30% / 0.32);
+  border: 2.5px solid #fff3;
+  /* makes the glow visible on dark backgrounds */
+  z-index: 3;
+}
+
+.sleep-card.glow, .sleep-card.glow-white {
+  box-shadow:
+    0 0 0 2px #fff2,
+    0 0 16px 4px #fff1,
+    0 2px 24px 0 hsl(249 80% 30% / 0.13);
+  border: 2.5px solid rgba(245, 245, 245, 0.133);
+  z-index: 3;
+}
+
+.glow-yellow {
+  color: #FFBB55;
+  text-shadow:
+    0 2px 10px #ffd58066,  /* yellow glow */
+    0 1px 2px #fff7b220;   /* soft white halo */
+  font-weight: 600;
+}
+
+.sleep-card.glow-white {
+  /* Soft white border */
+  border: 2.5px solid #fff4;
+  /* White glow */
+  box-shadow:
+    0 0 0 2.5px #fff8,
+    0 0 24px 0 #fff5,
+    0 2px 32px 0 #fff3;
+  border-radius: 1.25em;
+  background: hsl(var(--card) / 0.93); /* keeps your card color */
 }

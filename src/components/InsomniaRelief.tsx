@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Brain, Heart, Leaf, Moon, Play, Pause } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -84,6 +83,24 @@ const remedies: Remedy[] = [
   }
 ];
 
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case 'technique': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+    case 'natural': return 'bg-green-500/20 text-green-300 border-green-500/30';
+    case 'environment': return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+    default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+  }
+};
+
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case 'technique': return <Brain className="h-4 w-4" />;
+    case 'natural': return <Leaf className="h-4 w-4" />;
+    case 'environment': return <Moon className="h-4 w-4" />;
+    default: return null;
+  }
+};
+
 const BreathingExercise = () => {
   const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
@@ -134,20 +151,20 @@ const BreathingExercise = () => {
   };
 
   return (
-    <Card className="sleep-card border-accent/30">
+    <Card className="sleep-card glow-white">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
+        <CardTitle className="flex items-center space-x-2 text-white glow-white-heading">
           <Heart className="h-5 w-5 text-accent" />
           <span>Guided 4-7-8 Breathing</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="text-center space-y-4">
-        <div className="text-6xl font-bold text-accent">{count}</div>
-        <div className="text-lg capitalize text-foreground">
+        <div className="text-6xl font-bold text-accent glow-white-heading">{count}</div>
+        <div className="text-lg capitalize text-white glow-white-heading">
           {phase} {phase === 'inhale' && '(through nose)'}
           {phase === 'exhale' && '(through mouth)'}
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-white glow-white-heading">
           Cycle {cycle} of 4
         </div>
         <Button
@@ -172,32 +189,16 @@ const BreathingExercise = () => {
 };
 
 const InsomniaRelief = () => {
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'technique': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-      case 'natural': return 'bg-green-500/20 text-green-300 border-green-500/30';
-      case 'environment': return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
-      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-    }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'technique': return <Brain className="h-4 w-4" />;
-      case 'natural': return <Leaf className="h-4 w-4" />;
-      case 'environment': return <Moon className="h-4 w-4" />;
-      default: return null;
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center space-x-2">
           <Brain className="h-6 w-6 text-accent" />
-          <h2 className="text-2xl font-bold text-foreground">Beat Insomnia</h2>
+          <h2 className="text-2xl font-bold text-white glow-white-heading">
+            Beat Insomnia
+          </h2>
         </div>
-        <p className="text-muted-foreground">
+        <p className="text-white glow-white-heading">
           Natural remedies and techniques for better sleep
         </p>
       </div>
@@ -205,48 +206,63 @@ const InsomniaRelief = () => {
       {/* Interactive Breathing Exercise */}
       <BreathingExercise />
 
-      {/* Remedies */}
+      {/* Quick Sleep Tips - purple glowing box */}
+      <div className="enhanced-card text-glow-purple">
+        <h3
+          className="font-semibold mb-2"
+          style={{
+            color: "#b9a6ff",
+            textShadow: "0 2px 12px #b9a6ff66"
+          }}
+        >
+          Quick Sleep Tips
+        </h3>
+        <ul className="text-sm">
+          <li>• Use this when you've been awake for more than 20 minutes</li>
+          <li>• Keep lights dim during the session</li>
+          <li>• Try to stay still and comfortable throughout</li>
+          <li>• If still awake after, consider the 20-minute rule</li>
+        </ul>
+      </div>
+
+      {/* Remedies: Glow Box Style */}
       <div className="grid gap-4">
         {remedies.map((remedy, index) => (
-          <Card key={index} className="sleep-card">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center space-x-2">
-                  {getCategoryIcon(remedy.category)}
-                  <span>{remedy.title}</span>
-                </CardTitle>
-                <div className="flex items-center space-x-2">
-                  {remedy.duration && (
-                    <Badge variant="outline" className="text-xs">
-                      {remedy.duration}
-                    </Badge>
-                  )}
-                  <Badge className={getCategoryColor(remedy.category)}>
-                    {remedy.category}
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">{remedy.description}</p>
-              <div className="space-y-2">
-                <h4 className="font-medium text-foreground">How to:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  {remedy.instructions.map((instruction, idx) => (
-                    <li key={idx}>• {instruction}</li>
-                  ))}
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
+          <div key={index} className="enhanced-card text-glow-purple">
+            <div className="title flex items-center space-x-2">
+              {getCategoryIcon(remedy.category)}
+              <span>{remedy.title}</span>
+              {remedy.duration && (
+                <span className="ml-2 badge text-xs">{remedy.duration}</span>
+              )}
+              <span className={`ml-2 badge ${getCategoryColor(remedy.category)}`}>
+                {remedy.category}
+              </span>
+            </div>
+            <div className="desc">{remedy.description}</div>
+            <div className="meta font-medium">How to:</div>
+            <ul className="desc space-y-1">
+              {remedy.instructions.map((instruction, idx) => (
+                <li key={idx}>• {instruction}</li>
+              ))}
+            </ul>
+          </div>
         ))}
       </div>
 
       {/* Warning */}
       <Card className="sleep-card border-orange-500/30">
         <CardContent className="p-4">
-          <h3 className="font-semibold text-orange-300 mb-2">Important Notes</h3>
-          <ul className="text-sm text-muted-foreground space-y-1">
+          <h3
+            className="font-semibold mb-2"
+            style={{
+              color: "#FFBB55",
+              textShadow: "0 2px 10px #ffc76c99, 0 1px 2px #fff7b220"
+            }}
+          >
+            Important Notes
+          </h3>
+          <ul className="text-sm text-white text-shadow-glow space-y-1">
             <li>• Consult a healthcare provider before trying herbal supplements</li>
             <li>• If insomnia persists for more than 2 weeks, seek professional help</li>
             <li>• Some natural remedies may interact with medications</li>

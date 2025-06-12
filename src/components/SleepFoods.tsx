@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { Apple, Clock, ChefHat } from 'lucide-react';
+// Remove Card/CardContent/CardHeader/CardTitle for food cards (custom styled below)
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -68,16 +68,16 @@ const quickRecipes = [
   }
 ];
 
-const SleepFoods = () => {
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'snack': return 'bg-green-500/20 text-green-300 border-green-500/30';
-      case 'drink': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-      case 'meal': return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
-      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-    }
-  };
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case 'snack': return 'bg-green-500/20 text-green-300 border-green-500/30';
+    case 'drink': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+    case 'meal': return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
+    default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+  }
+};
 
+const SleepFoods = () => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -93,21 +93,19 @@ const SleepFoods = () => {
       {/* Food List */}
       <div className="grid gap-4">
         {sleepFoods.map((food, index) => (
-          <Card key={index} className="sleep-card">
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-foreground">{food.name}</h3>
-                <Badge className={getCategoryColor(food.category)}>
-                  {food.category}
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">{food.benefits}</p>
-              <div className="flex items-center space-x-1 text-xs text-accent">
-                <Clock className="h-3 w-3" />
-                <span>{food.timing}</span>
-              </div>
-            </CardContent>
-          </Card>
+          <div key={index} className="food-card">
+            <div className="title">
+              {food.name}
+              <span className={`badge ml-2 ${getCategoryColor(food.category)}`}>
+                {food.category}
+              </span>
+            </div>
+            <div className="desc">{food.benefits}</div>
+            <div className="meta flex items-center space-x-1">
+              <Clock className="h-3 w-3" />
+              <span>{food.timing}</span>
+            </div>
+          </div>
         ))}
       </div>
 
