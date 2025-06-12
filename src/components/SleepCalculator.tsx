@@ -242,15 +242,32 @@ const SleepCalculator = () => {
           )}
 
           <Card className="sleep-card mt-8">
-            <CardContent className="flex justify-around space-x-4">
-              <Button variant="outline" onClick={() => setCurrentView(View.Foods)} className="flex items-center space-x-2">
-                <Apple className="h-4 w-4" /><span>Sleep Foods</span>
+            <CardContent className="flex gap-4 w-full">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentView(View.Foods)}
+                className="flex-1 w-0 flex items-center justify-center space-x-2 min-h-[48px]"
+              >
+                <Apple className="h-4 w-4" />
+                <span className="break-words text-center block">Sleep Foods</span>
               </Button>
-              <Button variant="outline" onClick={() => setCurrentView(View.Insomnia)} className="flex items-center space-x-2">
-                <Brain className="h-4 w-4" /><span>Insomnia Relief</span>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentView(View.Insomnia)}
+                className="flex-1 w-0 flex items-center justify-center space-x-2 min-h-[48px]"
+              >
+                <Brain className="h-4 w-4" />
+                <span className="break-words text-center block">
+                  Insomnia<br />Relief
+                </span>
               </Button>
-              <Button variant="outline" onClick={() => setCurrentView(View.Sos)} className="flex items-center space-x-2">
-                <AlertCircle className="h-4 w-4" /><span>Sleep SOS</span>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentView(View.Sos)}
+                className="flex-1 w-0 flex items-center justify-center space-x-2 min-h-[48px]"
+              >
+                <AlertCircle className="h-4 w-4" />
+                <span className="break-words text-center block">Sleep SOS</span>
               </Button>
             </CardContent>
           </Card>
