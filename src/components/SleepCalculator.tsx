@@ -230,8 +230,13 @@ const SleepCalculator = () => {
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            {/* Animated logo/title above the card */}
-            <div className="flex flex-col items-center mt-16 mb-2 select-none">
+            {/* Animated logo/title above the card with fade-in opacity */}
+            <motion.div
+              className="flex flex-col items-center mt-16 mb-2 select-none"
+              initial={{ opacity: 0, y: -24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+            >
               <img
                 src="/images/topicon.png"
                 alt="BeatSomnia Logo"
@@ -239,7 +244,7 @@ const SleepCalculator = () => {
                 style={{ objectFit: "contain" }}
               />
               <h1 className="font-bold text-5xl mt-2">BeatSomnia</h1>
-            </div>
+            </motion.div>
             <Card className="sleep-card">
               <CardContent className="p-4">
                 <ModeSwitcher mode={mode} setMode={(m) => { setMode(m); setShowResults(false); setError(null); }} />
