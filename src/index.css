@@ -322,3 +322,17 @@ img {
   border-radius: 1.25em;
   background: hsl(var(--card) / 0.93); /* keeps your card color */
 }
+.sleep-glow-box {
+  border-radius: 1.5rem;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #2e1065;
+  background: rgba(39, 25, 66, 0.35); /* low opacity purple */
+  box-shadow: 0 0 32px 0 #2c0d8b, 0 2px 24px 0 rgba(0, 0, 0, 0.12);
+}
+.sleep-warning-glow {
+  border-radius: 1.5rem;
+  border: 2px solid #ffb74d;
+  background: rgba(255, 184, 85, 0.13);
+  box-shadow: 0 0 32px 0 #ffb74d66, 0 2px 24px 0 rgba(255, 184, 85, 0.07);
+}

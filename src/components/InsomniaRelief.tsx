@@ -151,20 +151,18 @@ const BreathingExercise = () => {
   };
 
   return (
-    <Card className="sleep-card glow-white">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2 text-white glow-white-heading">
-          <Heart className="h-5 w-5 text-accent" />
-          <span>Guided 4-7-8 Breathing</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="text-center space-y-4">
-        <div className="text-6xl font-bold text-accent glow-white-heading">{count}</div>
-        <div className="text-lg capitalize text-white glow-white-heading">
+    <div className="sleep-glow-box mx-auto max-w-2xl p-8 space-y-2">
+      <div className="flex items-center space-x-2 mb-4">
+        <Heart className="h-5 w-5 text-accent" />
+        <span className="text-xl font-semibold text-foreground">Guided 4-7-8 Breathing</span>
+      </div>
+      <div className="text-center space-y-4">
+        <div className="text-6xl font-bold text-accent">{count}</div>
+        <div className="text-lg capitalize text-foreground">
           {phase} {phase === 'inhale' && '(through nose)'}
           {phase === 'exhale' && '(through mouth)'}
         </div>
-        <div className="text-sm text-white glow-white-heading">
+        <div className="text-sm text-foreground">
           Cycle {cycle} of 4
         </div>
         <Button
@@ -183,22 +181,22 @@ const BreathingExercise = () => {
             </>
           )}
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
 const InsomniaRelief = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center space-x-2">
           <Brain className="h-6 w-6 text-accent" />
-          <h2 className="text-2xl font-bold text-white glow-white-heading">
+          <h2 className="text-2xl font-bold text-foreground">
             Beat Insomnia
           </h2>
         </div>
-        <p className="text-white glow-white-heading">
+        <p className="text-muted-foreground">
           Natural remedies and techniques for better sleep
         </p>
       </div>
@@ -206,18 +204,12 @@ const InsomniaRelief = () => {
       {/* Interactive Breathing Exercise */}
       <BreathingExercise />
 
-      {/* Quick Sleep Tips - purple glowing box */}
-      <div className="enhanced-card text-glow-purple">
-        <h3
-          className="font-semibold mb-2"
-          style={{
-            color: "#b9a6ff",
-            textShadow: "0 2px 12px #b9a6ff66"
-          }}
-        >
+      {/* Quick Sleep Tips */}
+      <div className="sleep-glow-box mx-auto max-w-2xl p-8 space-y-2">
+        <h3 className="font-semibold text-violet-400 mb-2" style={{ textShadow: "0 2px 12px #b9a6ff66" }}>
           Quick Sleep Tips
         </h3>
-        <ul className="text-sm">
+        <ul className="text-base text-white/90 space-y-1 pl-2">
           <li>• Use this when you've been awake for more than 20 minutes</li>
           <li>• Keep lights dim during the session</li>
           <li>• Try to stay still and comfortable throughout</li>
@@ -225,51 +217,39 @@ const InsomniaRelief = () => {
         </ul>
       </div>
 
-      {/* Remedies: Glow Box Style */}
-      <div className="grid gap-4">
-        {remedies.map((remedy, index) => (
-          <div key={index} className="enhanced-card text-glow-purple">
-            <div className="title flex items-center space-x-2">
-              {getCategoryIcon(remedy.category)}
-              <span>{remedy.title}</span>
-              {remedy.duration && (
-                <span className="ml-2 badge text-xs">{remedy.duration}</span>
-              )}
-              <span className={`ml-2 badge ${getCategoryColor(remedy.category)}`}>
-                {remedy.category}
-              </span>
-            </div>
-            <div className="desc">{remedy.description}</div>
-            <div className="meta font-medium">How to:</div>
-            <ul className="desc space-y-1">
-              {remedy.instructions.map((instruction, idx) => (
-                <li key={idx}>• {instruction}</li>
-              ))}
-            </ul>
+      {/* Remedies */}
+      {remedies.map((remedy, index) => (
+        <div key={index} className="sleep-glow-box mx-auto max-w-2xl p-8 space-y-2">
+          <div className="title flex items-center space-x-2 mb-1">
+            {getCategoryIcon(remedy.category)}
+            <span className="font-semibold text-lg text-foreground">{remedy.title}</span>
+            {remedy.duration && (
+              <span className="ml-2 badge text-xs">{remedy.duration}</span>
+            )}
+            <span className={`ml-2 badge ${getCategoryColor(remedy.category)}`}>
+              {remedy.category}
+            </span>
           </div>
-        ))}
-      </div>
-
-      {/* Warning */}
-      <Card className="sleep-card border-orange-500/30">
-        <CardContent className="p-4">
-          <h3
-            className="font-semibold mb-2"
-            style={{
-              color: "#FFBB55",
-              textShadow: "0 2px 10px #ffc76c99, 0 1px 2px #fff7b220"
-            }}
-          >
-            Important Notes
-          </h3>
-          <ul className="text-sm text-white text-shadow-glow space-y-1">
-            <li>• Consult a healthcare provider before trying herbal supplements</li>
-            <li>• If insomnia persists for more than 2 weeks, seek professional help</li>
-            <li>• Some natural remedies may interact with medications</li>
-            <li>• Results may take 1-4 weeks of consistent use</li>
+          <div className="desc text-foreground/90">{remedy.description}</div>
+          <div className="meta font-medium text-foreground/80">How to:</div>
+          <ul className="desc space-y-1 text-foreground/90">
+            {remedy.instructions.map((instruction, idx) => (
+              <li key={idx}>• {instruction}</li>
+            ))}
           </ul>
-        </CardContent>
-      </Card>
+        </div>
+      ))}
+
+      {/* Important Notes */}
+      <div className="sleep-glow-box mx-auto max-w-2xl p-8 space-y-2">
+        <h3 className="font-semibold text-violet-400 mb-2">Important Notes</h3>
+        <ul className="text-base text-white/90 space-y-1 pl-2">
+          <li>• Consult a healthcare provider before trying herbal supplements</li>
+          <li>• If insomnia persists for more than 2 weeks, seek professional help</li>
+          <li>• Some natural remedies may interact with medications</li>
+          <li>• Results may take 1-4 weeks of consistent use</li>
+        </ul>
+      </div>
     </div>
   );
 };

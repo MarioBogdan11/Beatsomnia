@@ -1,6 +1,5 @@
 import React from 'react';
 import { Apple, Clock, ChefHat } from 'lucide-react';
-// Remove Card/CardContent/CardHeader/CardTitle for food cards (custom styled below)
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -79,7 +78,7 @@ const getCategoryColor = (category: string) => {
 
 const SleepFoods = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center space-x-2">
           <Apple className="h-6 w-6 text-accent" />
@@ -109,38 +108,51 @@ const SleepFoods = () => {
         ))}
       </div>
 
-      {/* Quick Recipes */}
-      <Card className="sleep-card">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+      {/* Quick Recipes (Purple Glow) */}
+      <div className="sleep-glow-box mx-auto max-w-2xl p-8 pt-10 space-y-4">
+        <div className="text-center mb-2">
+          <div className="flex items-center justify-center space-x-2">
             <ChefHat className="h-5 w-5 text-accent" />
-            <span>3-Ingredient Sleep Recipes</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {quickRecipes.map((recipe, index) => (
-            <div key={index} className="space-y-2">
-              <h4 className="font-medium text-foreground">{recipe.name}</h4>
-              <p className="text-sm text-accent">{recipe.ingredients}</p>
-              <p className="text-xs text-muted-foreground">{recipe.instructions}</p>
-              {index < quickRecipes.length - 1 && <hr className="border-border/50" />}
+            <span className="text-2xl font-semibold text-foreground">3-Ingredient Sleep Recipes</span>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <h4 className="font-semibold text-foreground mb-1">Golden Milk</h4>
+            <div className="text-violet-400 mb-1">Turmeric + Almond Milk + Honey</div>
+            <div className="text-sm text-foreground/90">
+              Warm 1 cup almond milk, add 1/2 tsp turmeric, 1 tsp honey
             </div>
-          ))}
-        </CardContent>
-      </Card>
+            <hr className="border-violet-700/40 my-3"/>
+          </div>
+          <div>
+            <h4 className="font-semibold text-foreground mb-1">Sleep Smoothie</h4>
+            <div className="text-violet-400 mb-1">Banana + Chamomile Tea + Almonds</div>
+            <div className="text-sm text-foreground/90">
+              Blend frozen banana, cooled chamomile tea, 6 almonds
+            </div>
+            <hr className="border-violet-700/40 my-3"/>
+          </div>
+          <div>
+            <h4 className="font-semibold text-foreground mb-1">Bedtime Bowl</h4>
+            <div className="text-violet-400 mb-1">Oats + Banana + Cinnamon</div>
+            <div className="text-sm text-foreground/90">
+              Mix 1/2 cup oats, sliced banana, pinch of cinnamon with warm milk
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* General Tips */}
-      <Card className="sleep-card border-accent/30">
-        <CardContent className="p-4">
-          <h3 className="font-semibold text-accent mb-2">General Guidelines</h3>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• Eat 1-2 hours before bed for optimal digestion</li>
-            <li>• Avoid spicy, heavy, or acidic foods late at night</li>
-            <li>• Stop caffeine intake at least 6 hours before bedtime</li>
-            <li>• Stay hydrated but limit fluids 2 hours before sleep</li>
-          </ul>
-        </CardContent>
-      </Card>
+      {/* General Guidelines (Purple Glow) */}
+      <div className="sleep-glow-box mx-auto max-w-2xl p-8 space-y-2">
+        <h3 className="font-semibold text-violet-400 mb-2">General Guidelines</h3>
+        <ul className="text-base text-white/90 space-y-1 pl-2">
+          <li>• Eat 1-2 hours before bed for optimal digestion</li>
+          <li>• Avoid spicy, heavy, or acidic foods late at night</li>
+          <li>• Stop caffeine intake at least 6 hours before bedtime</li>
+          <li>• Stay hydrated but limit fluids 2 hours before sleep</li>
+        </ul>
+      </div>
     </div>
   );
 };
