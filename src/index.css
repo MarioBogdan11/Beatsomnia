@@ -336,3 +336,27 @@ img {
   background: rgba(255, 184, 85, 0.13);
   box-shadow: 0 0 32px 0 #ffb74d66, 0 2px 24px 0 rgba(255, 184, 85, 0.07);
 }
+.stars-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.85;
+  box-shadow: 0 0 6px 2px #fff7;
+  animation: twinkle 2.2s infinite alternate;
+}
+
+@keyframes twinkle {
+  0%   { opacity: 0.6; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.2; }
+}

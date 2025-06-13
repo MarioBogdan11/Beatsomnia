@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import React from "react";
-
+import StarsBackground from './components/StarsBackground';
 // ...other imports
 
 const queryClient = new QueryClient();
