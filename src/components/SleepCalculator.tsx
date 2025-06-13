@@ -5,13 +5,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import SleepFoods from './SleepFoods';
 import InsomniaRelief from './InsomniaRelief';
 import SleepSOS from './SleepSOS';
 import { AnimatePresence, motion } from 'framer-motion';
-
-
 
 interface SleepTime {
   bedtime?: string;
@@ -43,12 +40,24 @@ const cycleExplanations = {
 } as const;
 
 const badgeColors = {
-  6: 'bg-green-500/20 text-green-300 border-green-500/30',
-  5: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  4: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+  6: {
+    border: "border-green-400",
+    cyclesBg: "bg-green-600/80 text-white",
+    timeBg: "bg-green-400/90 text-white",
+  },
+  5: {
+    border: "border-blue-400",
+    cyclesBg: "bg-blue-600/80 text-white",
+    timeBg: "bg-blue-400/90 text-white",
+  },
+  4: {
+    border: "border-orange-400",
+    cyclesBg: "bg-orange-600/80 text-white",
+    timeBg: "bg-orange-400/90 text-white",
+  },
 } as const;
 
-// Util
+// Utils
 const formatTime = (date: Date) =>
   `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 
@@ -60,46 +69,27 @@ const isValidLatency = (latency: string) => {
   return latency !== '' && !isNaN(val) && val >= 1 && val <= 60;
 };
 
-// Animated ModeSwitcher
-const ModeSwitcher = ({ mode, setMode }: {mode: Mode, setMode: (m: Mode) => void}) => (
-  <div className="flex rounded-lg bg-secondary p-1">
+// Make the mode switcher buttons bigger with a custom class
+const ModeSwitcher = ({ mode, setMode }: { mode: Mode, setMode: (m: Mode) => void }) => (
+  <div className="flex rounded-lg bg-secondary p-1 mb-6">
     {([Mode.Wakeup, Mode.SleepNow] as Mode[]).map((m) => (
-      <AnimatePresence key={m} mode="wait" initial={false}>
-        {mode === m ? (
-          <motion.button
-            key={m}
-            layout
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setMode(m)}
-            className="flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md bg-primary text-primary-foreground shadow transition-colors"
-            style={{ zIndex: 1 }}
-          >
-            {m === Mode.Wakeup ? <Clock className="h-4 w-4" /> : <Bed className="h-4 w-4" />}
-            <span>{m === Mode.Wakeup ? 'Plan Wake-Up' : 'Sleep Now'}</span>
-          </motion.button>
-        ) : (
-          <motion.button
-            key={m}
-            layout
-            initial={false}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setMode(m)}
-            className="flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-muted-foreground hover:text-foreground transition-colors"
-            style={{ zIndex: 0 }}
-          >
-            {m === Mode.Wakeup ? <Clock className="h-4 w-4" /> : <Bed className="h-4 w-4" />}
-            <span>{m === Mode.Wakeup ? 'Plan Wake-Up' : 'Sleep Now'}</span>
-          </motion.button>
-        )}
-      </AnimatePresence>
+      <Button
+        key={m}
+        onClick={() => setMode(m)}
+        className={`mode-switcher-btn flex-1 flex items-center justify-center space-x-2 rounded-md transition-colors
+          ${mode === m
+            ? "bg-primary text-primary-foreground shadow"
+            : "text-muted-foreground hover:text-foreground"
+          }`}
+        style={{ zIndex: mode === m ? 1 : 0 }}
+      >
+        {m === Mode.Wakeup ? <Clock className="h-4 w-4" /> : <Bed className="h-4 w-4" />}
+        <span>{m === Mode.Wakeup ? 'Plan Wake-Up' : 'Sleep Now'}</span>
+      </Button>
     ))}
   </div>
 );
+
 
 const LatencySelect = (
   { value, onChange, error }:
@@ -124,19 +114,40 @@ const LatencySelect = (
 );
 
 const ResultsGrid = ({ sleepTimes, mode }: { sleepTimes: SleepTime[], mode: Mode }) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    {sleepTimes.map(({ bedtime, wakeTime, cycles, totalSleep, explanation }) => (
-      <Card key={cycles} className="p-4 border border-border rounded-lg shadow-md hover:shadow-lg transition-shadow">
-        <div className={`flex items-center justify-between mb-2 ${badgeColors[cycles]} rounded-md border px-2 py-1 text-sm font-semibold`}>
-          <span>{cycles} cycles</span>
-          <Badge className="text-xs">{totalSleep}</Badge>
-        </div>
-        <div className="text-3xl font-bold text-primary mb-2">
-          {mode === Mode.Wakeup ? bedtime : wakeTime}
-        </div>
-        <p className="text-sm text-muted-foreground">{explanation}</p>
-      </Card>
-    ))}
+  <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch">
+    {sleepTimes.map(({ bedtime, wakeTime, cycles, totalSleep, explanation }, i) => {
+      const color = badgeColors[cycles];
+      return (
+        <motion.div
+          key={cycles}
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.5, delay: i * 0.12 }}
+          className={`flex-1`}
+        >
+          <div
+            className={`flex flex-col items-center px-6 py-5 rounded-xl bg-[#101e4b] border ${color.border} shadow-md transition-shadow min-w-[200px]`}
+            style={{ minHeight: 260 }}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <span className={`px-3 py-1 rounded-md text-sm font-semibold ${color.cyclesBg}`}>
+                {cycles} cycles
+              </span>
+              <span className={`px-3 py-1 rounded-md text-xs font-bold ${color.timeBg}`}>
+                {totalSleep}
+              </span>
+            </div>
+            <div className="text-4xl md:text-3xl font-extrabold text-white mb-2 tracking-widest">
+              {mode === Mode.Wakeup ? bedtime : wakeTime}
+            </div>
+            <div className="text-sm text-slate-200 text-center opacity-80 mt-1">
+              {explanation}
+            </div>
+          </div>
+        </motion.div>
+      );
+    })}
   </div>
 );
 
@@ -173,7 +184,7 @@ const SleepCalculator = () => {
     setShowResults(true);
   };
 
-  // Calculation logic moved out for clarity
+  // Calculation logic
   const calculateWakeUpTimes = (latencyStr: string): SleepTime[] => {
     const now = new Date();
     const latency = Number(latencyStr);
@@ -209,7 +220,6 @@ const SleepCalculator = () => {
     });
   };
 
-  // Main render with animated transitions between views and animated buttons
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-10">
       <AnimatePresence mode="wait">
@@ -224,67 +234,73 @@ const SleepCalculator = () => {
             <Card className="sleep-card">
               <CardContent className="p-4">
                 <ModeSwitcher mode={mode} setMode={(m) => { setMode(m); setShowResults(false); setError(null); }} />
-              </CardContent>
-            </Card>
-            <Card className="sleep-card">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  {mode === Mode.Wakeup
-                    ? <><Clock className="h-5 w-5 text-primary" /><span>Sleep Planner</span></>
-                    : <><Bed className="h-5 w-5 text-primary" /><span>Sleep Now Mode</span></>}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {mode === Mode.Wakeup ? (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">What time do you want to wake up?</label>
-                    <Input type="time" value={wakeUpTime} onChange={e => setWakeUpTime(e.target.value)} className="bg-secondary border-border" />
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Current time</label>
-                    <div className="text-2xl font-bold text-primary">{formatCurrentTime()}</div>
-                    <p className="text-sm text-muted-foreground">We'll calculate the best wake-up times based on when you fall asleep</p>
-                  </div>
-                )}
-                <LatencySelect value={sleepLatency} onChange={setSleepLatency} error={error ?? undefined} />
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={mode}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -16 }}
-                    transition={{ duration: 0.25 }}
-                    className="w-full"
-                  >
-                    <Button
-                      onClick={handleCalculate}
-                      className="w-full dawn-gradient hover:opacity-90 transition-opacity"
-                      size="lg"
-                      disabled={!isValidLatency(sleepLatency)}
+                <div className="mt-4">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      {mode === Mode.Wakeup
+                        ? <><Clock className="h-5 w-5 text-primary" /><span>Sleep Planner</span></>
+                        : <><Bed className="h-5 w-5 text-primary" /><span>Sleep Now Mode</span></>}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {mode === Mode.Wakeup ? (
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-foreground">What time do you want to wake up?</label>
+                        <Input type="time" value={wakeUpTime} onChange={e => setWakeUpTime(e.target.value)} className="bg-secondary border-border" />
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-foreground">Current time</label>
+                        <div className="text-2xl font-bold text-primary">{formatCurrentTime()}</div>
+                        <p className="text-sm text-muted-foreground">We'll calculate the best wake-up times based on when you fall asleep</p>
+                      </div>
+                    )}
+                    <LatencySelect value={sleepLatency} onChange={setSleepLatency} error={error ?? undefined} />
+                    <motion.div
+                      key={mode}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -16 }}
+                      transition={{ duration: 0.25 }}
+                      className="w-full"
                     >
-                      {mode === Mode.Wakeup ? 'Calculate Optimal Sleep Times' : 'Calculate Wake-Up Times'}
-                    </Button>
-                  </motion.div>
+                      <Button
+                        onClick={handleCalculate}
+                        className="w-full dawn-gradient hover:opacity-90 transition-opacity"
+                        size="lg"
+                        disabled={!isValidLatency(sleepLatency)}
+                      >
+                        {mode === Mode.Wakeup ? 'Calculate Optimal Sleep Times' : 'Calculate Wake-Up Times'}
+                      </Button>
+                    </motion.div>
+                  </CardContent>
+                </div>
+                <AnimatePresence>
+                  {showResults && (
+                    <motion.div
+                      key="results"
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -24 }}
+                      transition={{ duration: 0.5 }}
+                      className="space-y-4 mt-6"
+                    >
+                      <div className="text-center">
+                        <h2 className="text-2xl font-semibold text-foreground mb-2">
+                          {mode === Mode.Wakeup ? 'Your Optimal Bedtimes' : 'Your Optimal Wake-Up Times'}
+                        </h2>
+                        <p className="text-muted-foreground">
+                          {mode === Mode.Wakeup
+                            ? `To wake up at ${wakeUpTime}, try going to bed at:`
+                            : `If you sleep now, here are the best times to wake up:`}
+                        </p>
+                      </div>
+                      <ResultsGrid sleepTimes={sleepTimes} mode={mode} />
+                    </motion.div>
+                  )}
                 </AnimatePresence>
               </CardContent>
             </Card>
-            {showResults && (
-              <div className="space-y-4 animate-fade-in">
-                <div className="text-center">
-                  <h2 className="text-2xl font-semibold text-foreground mb-2">
-                    {mode === Mode.Wakeup ? 'Your Optimal Bedtimes' : 'Your Optimal Wake-Up Times'}
-                  </h2>
-                  <p className="text-muted-foreground">
-                    {mode === Mode.Wakeup
-                      ? `To wake up at ${wakeUpTime}, try going to bed at:`
-                      : `If you sleep now, here are the best times to wake up:`}
-                  </p>
-                </div>
-                <ResultsGrid sleepTimes={sleepTimes} mode={mode} />
-              </div>
-            )}
-
             <Card className="sleep-card mt-8">
               <CardContent className="flex gap-4 w-full">
                 <Button
