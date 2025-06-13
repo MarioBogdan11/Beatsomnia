@@ -90,7 +90,6 @@ const ModeSwitcher = ({ mode, setMode }: { mode: Mode, setMode: (m: Mode) => voi
   </div>
 );
 
-
 const LatencySelect = (
   { value, onChange, error }:
   { value: string, onChange: (v: string) => void, error?: string }
@@ -231,6 +230,16 @@ const SleepCalculator = () => {
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
+            {/* Animated logo/title above the card */}
+            <div className="flex flex-col items-center mt-16 mb-2 select-none">
+              <img
+                src="/images/topicon.png"
+                alt="BeatSomnia Logo"
+                className="w-28 h-28 mb-2 moon-animate"
+                style={{ objectFit: "contain" }}
+              />
+              <h1 className="font-bold text-5xl mt-2">BeatSomnia</h1>
+            </div>
             <Card className="sleep-card">
               <CardContent className="p-4">
                 <ModeSwitcher mode={mode} setMode={(m) => { setMode(m); setShowResults(false); setError(null); }} />
