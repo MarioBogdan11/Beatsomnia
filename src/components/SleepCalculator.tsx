@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Clock, Bed, Apple, Brain, AlertCircle, ArrowLeft
+  Apple, Brain, AlertCircle, ArrowLeft, Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,371 +10,382 @@ import InsomniaRelief from './InsomniaRelief';
 import SleepSOS from './SleepSOS';
 import { AnimatePresence, motion } from 'framer-motion';
 
-interface SleepTime {
-  bedtime?: string;
-  wakeTime?: string;
-  cycles: number;
-  totalSleep: string;
-  explanation: string;
-}
-
-enum Mode {
-  Wakeup = 'wakeup',
-  SleepNow = 'sleepnow',
-}
+type Mode = 'wakeup' | 'sleepnow';
 
 enum View {
   Calculator = 'calculator',
   Foods = 'foods',
   Insomnia = 'insomnia',
-  Sos = 'sos'
+  Sos = 'sos',
+  FallAsleep = 'fallAsleep'
 }
 
+const CYCLES = [6, 5, 4, 3, 2, 1];
 const CYCLE_LENGTH = 90;
-const CYCLES = [6, 5, 4] as const;
 
-const cycleExplanations = {
-  6: 'Optimal for most adults - full rest and recovery',
-  5: 'Good balance - adequate rest for most people',
-  4: 'Minimum recommended - may feel tired',
-} as const;
-
-const badgeColors = {
-  6: {
-    border: "border-green-400",
-    cyclesBg: "bg-green-600/80 text-white",
-    timeBg: "bg-green-400/90 text-white",
-  },
-  5: {
-    border: "border-blue-400",
-    cyclesBg: "bg-blue-600/80 text-white",
-    timeBg: "bg-blue-400/90 text-white",
-  },
-  4: {
-    border: "border-orange-400",
-    cyclesBg: "bg-orange-600/80 text-white",
-    timeBg: "bg-orange-400/90 text-white",
-  },
-} as const;
-
-// Utils
 const formatTime = (date: Date) =>
   `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 
 const getTotalSleepString = (totalMinutes: number) =>
   `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`;
 
-const isValidLatency = (latency: string) => {
-  const val = Number(latency);
-  return latency !== '' && !isNaN(val) && val >= 1 && val <= 60;
+const getCycleExplanation = (cycles: number) => {
+  switch (cycles) {
+    case 6: return 'Optimal for most adults - full rest and recovery';
+    case 5: return 'Good balance - adequate rest for most people';
+    case 4: return 'Minimum recommended - may feel tired';
+    case 3: return 'Below recommended - you will feel tired';
+    case 2: return 'Poor sleep - for emergencies only';
+    case 1: return 'Very poor sleep - you will likely feel terrible';
+    default: return '';
+  }
 };
 
-// Make the mode switcher buttons bigger with a custom class
-const ModeSwitcher = ({ mode, setMode }: { mode: Mode, setMode: (m: Mode) => void }) => (
-  <div className="flex rounded-lg bg-secondary p-1 mb-6">
-    {([Mode.Wakeup, Mode.SleepNow] as Mode[]).map((m) => (
-      <Button
-        key={m}
-        onClick={() => setMode(m)}
-        className={`mode-switcher-btn flex-1 flex items-center justify-center space-x-2 rounded-md transition-colors
-          ${mode === m
-            ? "bg-primary text-primary-foreground shadow"
-            : "text-muted-foreground hover:text-foreground"
-          }`}
-        style={{ zIndex: mode === m ? 1 : 0 }}
-      >
-        {m === Mode.Wakeup ? <Clock className="h-4 w-4" /> : <Bed className="h-4 w-4" />}
-        <span>{m === Mode.Wakeup ? 'Plan Wake-Up' : 'Sleep Now'}</span>
-      </Button>
-    ))}
-  </div>
-);
-
-const LatencySelect = (
-  { value, onChange, error }:
-  { value: string, onChange: (v: string) => void, error?: string }
-) => (
-  <div className="space-y-2">
-    <label className="text-sm font-medium text-foreground">
-      How long does it take you to fall asleep? (minutes)
-    </label>
-    <select
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      className="bg-secondary border-border w-full py-2 px-3 rounded-md"
-    >
-      <option value="">Select minutes</option>
-      {Array.from({ length: 60 }, (_, i) => i + 1).map((min) =>
-        <option key={min} value={min}>{min}</option>
-      )}
-    </select>
-    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-  </div>
-);
-
-const ResultsGrid = ({ sleepTimes, mode }: { sleepTimes: SleepTime[], mode: Mode }) => (
-  <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch">
-    {sleepTimes.map(({ bedtime, wakeTime, cycles, totalSleep, explanation }, i) => {
-      const color = badgeColors[cycles];
-      return (
-        <motion.div
-          key={cycles}
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={{ duration: 0.5, delay: i * 0.12 }}
-          className={`flex-1`}
-        >
-          <div
-            className={`flex flex-col items-center px-6 py-5 rounded-xl bg-[#101e4b] border ${color.border} shadow-md transition-shadow min-w-[200px]`}
-            style={{ minHeight: 260 }}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <span className={`px-3 py-1 rounded-md text-sm font-semibold ${color.cyclesBg}`}>
-                {cycles} cycles
-              </span>
-              <span className={`px-3 py-1 rounded-md text-xs font-bold ${color.timeBg}`}>
-                {totalSleep}
-              </span>
-            </div>
-            <div className="text-4xl md:text-3xl font-extrabold text-white mb-2 tracking-widest">
-              {mode === Mode.Wakeup ? bedtime : wakeTime}
-            </div>
-            <div className="text-sm text-slate-200 text-center opacity-80 mt-1">
-              {explanation}
-            </div>
-          </div>
-        </motion.div>
-      );
-    })}
-  </div>
-);
-
 const SleepCalculator = () => {
-  const [mode, setMode] = useState<Mode>(Mode.Wakeup);
-  const [wakeUpTime, setWakeUpTime] = useState('07:00');
-  const [sleepLatency, setSleepLatency] = useState('15');
-  const [sleepTimes, setSleepTimes] = useState<SleepTime[]>([]);
+  const [mode, setMode] = useState<Mode>('wakeup');
+  const [latency, setLatency] = useState<string>('15');
+  const [time, setTime] = useState<string>(formatTime(new Date()));
+  const [activeTab, setActiveTab] = useState<'insomnia' | 'foods' | 'sos'>('insomnia');
+  const [sleepTimes, setSleepTimes] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [currentView, setCurrentView] = useState<View>(View.Calculator);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    setLatency('15');
+    setTime(formatTime(new Date()));
+    setShowResults(false);
+    setSleepTimes([]);
+  }, [mode]);
 
-  const formatCurrentTime = () => currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  function handleCalculate() {
+    const latencyMin = Number(latency);
+    if (isNaN(latencyMin) || latencyMin < 1 || latencyMin > 60) return;
 
-  const handleCalculate = () => {
-    if (!isValidLatency(sleepLatency)) {
-      setError('Please select a number between 1 and 60.');
-      setShowResults(false);
-      return;
-    }
-    setError(null);
+    const [hours, minutes] = time.split(':').map(Number);
+    const baseTime = new Date();
+    baseTime.setHours(hours);
+    baseTime.setMinutes(minutes);
+    baseTime.setSeconds(0);
 
-    setSleepTimes(
-      mode === Mode.Wakeup
-        ? calculateSleepTimes(wakeUpTime, sleepLatency)
-        : calculateWakeUpTimes(sleepLatency)
-    );
+    const results = CYCLES.map((cycle) => {
+      const totalSleep = cycle * CYCLE_LENGTH;
+      const adjusted = new Date(baseTime.getTime());
+
+      if (mode === 'wakeup') {
+        adjusted.setMinutes(adjusted.getMinutes() - totalSleep - latencyMin);
+      } else {
+        adjusted.setMinutes(adjusted.getMinutes() + totalSleep + latencyMin);
+      }
+
+      return {
+        cycles: cycle,
+        totalSleep: getTotalSleepString(totalSleep),
+        bedtime: mode === 'wakeup' ? formatTime(adjusted) : undefined,
+        wakeTime: mode === 'sleepnow' ? formatTime(adjusted) : undefined,
+        explanation: getCycleExplanation(cycle),
+      };
+    });
+
+    setSleepTimes(results);
     setShowResults(true);
-  };
+  }
 
-  // Calculation logic
-  const calculateWakeUpTimes = (latencyStr: string): SleepTime[] => {
-    const now = new Date();
-    const latency = Number(latencyStr);
-    const sleepTime = new Date(now.getTime() + latency * 60000);
-
-    return CYCLES.map((cycles) => {
-      const totalSleepMinutes = cycles * CYCLE_LENGTH;
-      const wakeUpDate = new Date(sleepTime.getTime() + totalSleepMinutes * 60000);
-      return {
-        wakeTime: formatTime(wakeUpDate),
-        cycles,
-        totalSleep: getTotalSleepString(totalSleepMinutes),
-        explanation: cycleExplanations[cycles],
-      };
-    });
-  };
-
-  const calculateSleepTimes = (wakeTimeStr: string, latencyStr: string): SleepTime[] => {
-    const [hours, minutes] = wakeTimeStr.split(':').map(Number);
-    const wakeUpDate = new Date();
-    wakeUpDate.setHours(hours, minutes, 0, 0);
-    const latency = Number(latencyStr);
-
-    return CYCLES.map((cycles) => {
-      const totalSleepMinutes = cycles * CYCLE_LENGTH;
-      const bedtimeWithLatency = new Date(wakeUpDate.getTime() - (totalSleepMinutes + latency) * 60000);
-      return {
-        bedtime: formatTime(bedtimeWithLatency),
-        cycles,
-        totalSleep: getTotalSleepString(totalSleepMinutes),
-        explanation: cycleExplanations[cycles],
-      };
-    });
-  };
+  // --- BEGIN: Image Button for Mode Switcher ---
+  const ModeSwitcher = () => (
+    <div className="flex flex-col sm:flex-row justify-center gap-6 mb-10 w-full max-w-4xl mx-auto">
+      {(['wakeup', 'sleepnow'] as Mode[]).map((m) => (
+        <Button
+          key={m}
+          onClick={() => setMode(m)}
+          className={`w-full sm:w-auto break-words ${
+            mode === m ? 'bg-primary text-white shadow-xl scale-105' : 'text-muted-foreground'
+          } mode-switcher-btn transition-all duration-300 flex items-center justify-center gap-2 text-lg`}
+          style={{
+            fontSize: "1.2rem",
+            padding: "0.9rem 2rem",
+            minHeight: "52px",
+            borderRadius: "14px",
+          }}
+        >
+          <span className="inline-flex items-center">
+            {m === 'wakeup'
+              ? <img src="/images/clock.png" alt="Clock" className="mr-2" style={{
+                  display: 'inline-flex',
+                  width: 36, height: 36,
+                  minWidth: 30, minHeight: 30,
+                  objectFit: 'contain'
+                }} />
+              : <img src="/images/bed.png" alt="Bed" className="mr-2" style={{
+                  display: 'inline-flex',
+                  width: 36, height: 36,
+                  minWidth: 30, minHeight: 30,
+                  objectFit: 'contain'
+                }} />
+            }
+          </span>
+          <span className="font-bold">
+            {m === 'wakeup' ? 'Plan Wake-Up' : 'Sleep Now'}
+          </span>
+        </Button>
+      ))}
+    </div>
+  );
+  // --- END: Image Button for Mode Switcher ---
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-10">
-      <AnimatePresence mode="wait">
-        {currentView === View.Calculator && (
-          <motion.div
-            key="calculator"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
-            {/* Animated logo/title above the card with fade-in opacity */}
+    <div
+      className="w-full min-h-screen flex flex-col items-center justify-center bg-transparent"
+      style={{
+        padding: 0,
+        margin: 0,
+        zIndex: 10,
+        overflowY: "auto"
+      }}
+    >
+      <div
+        className="
+          rounded-3xl shadow-2xl flex flex-col items-center
+          bg-[rgba(10,14,48,0.68)] backdrop-blur-[2px]
+          border border-white/10
+          w-full max-w-[480px] min-h-[90vh]
+          px-2 py-6
+          sm:px-4 sm:py-10
+          mx-auto
+        "
+        style={{
+          boxShadow: "0 16px 48px 0 rgba(0,0,0,0.30)",
+          margin: "2vh auto",
+          boxSizing: "border-box"
+        }}
+      >
+        {/* Logo and Title */}
+        <div className="flex flex-col items-center justify-center mb-6 text-center">
+          <img
+            src="/images/topicon.png"
+            alt="BeatSomnia logo"
+            className="h-20 w-20 mb-2 moon-animate drop-shadow-lg transition-transform duration-700 hover:scale-105"
+            style={{ animation: 'spin 6s linear infinite' }}
+          />
+          <h1 className="text-3xl font-extrabold text-white text-shadow-glow">BeatSomnia</h1>
+        </div>
+
+        <h2 className="text-center text-2xl font-bold text-white mb-6">Sleep Calculator</h2>
+
+        <AnimatePresence mode="wait">
+          {currentView === View.Calculator && (
             <motion.div
-              className="flex flex-col items-center mt-16 mb-2 select-none"
-              initial={{ opacity: 0, y: -24 }}
+              key="calculator"
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="w-full"
             >
-              <img
-                src="/images/topicon.png"
-                alt="BeatSomnia Logo"
-                className="w-28 h-28 mb-2 moon-animate"
-                style={{ objectFit: "contain" }}
-              />
-              <h1 className="font-bold text-5xl mt-2">BeatSomnia</h1>
-            </motion.div>
-            <Card className="sleep-card">
-              <CardContent className="p-4">
-                <ModeSwitcher mode={mode} setMode={(m) => { setMode(m); setShowResults(false); setError(null); }} />
-                <div className="mt-4">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      {mode === Mode.Wakeup
-                        ? <><Clock className="h-5 w-5 text-primary" /><span>Sleep Planner</span></>
-                        : <><Bed className="h-5 w-5 text-primary" /><span>Sleep Now Mode</span></>}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {mode === Mode.Wakeup ? (
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">What time do you want to wake up?</label>
-                        <Input type="time" value={wakeUpTime} onChange={e => setWakeUpTime(e.target.value)} className="bg-secondary border-border" />
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Current time</label>
-                        <div className="text-2xl font-bold text-primary">{formatCurrentTime()}</div>
-                        <p className="text-sm text-muted-foreground">We'll calculate the best wake-up times based on when you fall asleep</p>
-                      </div>
-                    )}
-                    <LatencySelect value={sleepLatency} onChange={setSleepLatency} error={error ?? undefined} />
-                    <motion.div
-                      key={mode}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -16 }}
-                      transition={{ duration: 0.25 }}
-                      className="w-full"
-                    >
-                      <Button
-                        onClick={handleCalculate}
-                        className="w-full dawn-gradient hover:opacity-90 transition-opacity"
-                        size="lg"
-                        disabled={!isValidLatency(sleepLatency)}
-                      >
-                        {mode === Mode.Wakeup ? 'Calculate Optimal Sleep Times' : 'Calculate Wake-Up Times'}
-                      </Button>
-                    </motion.div>
-                  </CardContent>
+              {/* Mode Switcher with Clock/Bed Images */}
+              <ModeSwitcher />
+
+              {/* Time Picker */}
+              <div className="w-full mb-5 transition-all duration-300 max-w-lg mx-auto">
+                <label className="text-white block text-left text-base font-semibold mb-1">
+                  {mode === 'wakeup' ? 'What time do you want to wake up?' : 'What time is it now?'}
+                </label>
+                <div className="flex justify-center">
+                  <Input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    className="bg-white text-black font-semibold py-2 px-4 text-base rounded-lg cursor-pointer focus:ring-4 focus:ring-blue-400 transition-all duration-300"
+                    style={{
+                      fontSize: '1.1rem',
+                      width: '490px',
+                      maxWidth: '100%'
+                    }}
+                  />
                 </div>
-                <AnimatePresence>
-                  {showResults && (
-                    <motion.div
-                      key="results"
-                      initial={{ opacity: 0, y: 24 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -24 }}
-                      transition={{ duration: 0.5 }}
-                      className="space-y-4 mt-6"
+              </div>
+
+              {/* Latency Select */}
+              <div className="w-full mb-7 transition-all duration-300 max-w-lg mx-auto">
+                <label className="text-white block text-left text-base font-semibold mb-1">
+                  How long does it take you to fall asleep? (minutes)
+                </label>
+                <select
+                  value={latency}
+                  onChange={(e) => setLatency(e.target.value)}
+                  className="bg-white text-black w-full py-2 px-4 rounded-lg text-base font-semibold focus:ring-4 focus:ring-blue-400 transition-all duration-300"
+                  style={{ fontSize: '1.1rem' }}
+                >
+                  {Array.from({ length: 60 }, (_, i) => i + 1).map((min) => (
+                    <option key={min} value={min}>
+                      {min}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Calculate Button */}
+              <div className="w-full flex justify-center my-7 max-w-lg mx-auto">
+                <Button
+                  className="
+                    w-full
+                    max-w-lg
+                    mx-auto
+                    text-white
+                    font-bold
+                    text-lg
+                    rounded-xl
+                    shadow-lg
+                    border-0
+                    bg-gradient-to-r
+                    from-[#5d4aff]
+                    to-[#5d7fff]
+                    hover:from-[#7b5dfa]
+                    hover:to-[#688cff]
+                    transition
+                    px-8
+                    py-5
+                    min-h-0
+                  "
+                  style={{
+                    minHeight: 54,
+                    height: 54
+                  }}
+                  onClick={handleCalculate}
+                >
+                  {mode === 'wakeup' ? 'Calculate Optimal Sleep Times' : 'Calculate Wake-Up Times'}
+                </Button>
+              </div>
+
+              {/* Results Animated Boxes - COMPACT */}
+              {showResults && (
+                <div className="mt-7 w-full flex flex-col gap-2 items-center max-w-lg mx-auto">
+                  {sleepTimes.map((result, idx) => (
+                    <div
+                      key={result.cycles}
+                      className="w-full max-w-xs bg-blue-900/90 rounded-lg px-3 py-3 text-white shadow-lg animate-cyclefadein"
+                      style={{
+                        animationDelay: `${0.1 + idx * 0.10}s`,
+                        animationFillMode: "backwards",
+                        minHeight: 68,
+                        fontSize: "1rem"
+                      }}
                     >
-                      <div className="text-center">
-                        <h2 className="text-2xl font-semibold text-foreground mb-2">
-                          {mode === Mode.Wakeup ? 'Your Optimal Bedtimes' : 'Your Optimal Wake-Up Times'}
-                        </h2>
-                        <p className="text-muted-foreground">
-                          {mode === Mode.Wakeup
-                            ? `To wake up at ${wakeUpTime}, try going to bed at:`
-                            : `If you sleep now, here are the best times to wake up:`}
-                        </p>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-base">
+                          {result.cycles} cycles
+                        </span>
+                        <span className="font-semibold text-xs">
+                          {result.totalSleep}
+                        </span>
                       </div>
-                      <ResultsGrid sleepTimes={sleepTimes} mode={mode} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </CardContent>
-            </Card>
-            <Card className="sleep-card mt-8">
-              <CardContent className="flex gap-4 w-full">
+                      <div className="text-xl font-bold mb-1 text-center">
+                        {mode === 'wakeup' ? result.bedtime : result.wakeTime}
+                      </div>
+                      <div className="text-xs text-center text-blue-200">{result.explanation}</div>
+                    </div>
+                  ))}
+                  <style>{`
+                    @keyframes cyclefadein {
+                      0% { opacity: 0; transform: translateY(18px) scale(0.97);}
+                      100% { opacity: 1; transform: translateY(0) scale(1);}
+                    }
+                    .animate-cyclefadein {
+                      animation: cyclefadein 0.5s cubic-bezier(.56,1.56,.5,1) both;
+                    }
+                  `}</style>
+                </div>
+              )}
+
+              {/* Extras Section Trigger */}
+              <div className="w-full flex justify-center mt-10 px-4 max-w-lg mx-auto">
                 <Button
-                  variant="outline"
-                  onClick={() => setCurrentView(View.Foods)}
-                  className="flex-1 w-0 flex items-center justify-center space-x-2 min-h-[48px]"
+                  onClick={() => setCurrentView(View.FallAsleep)}
+                  className="bg-yellow-400 text-black font-bold text-center px-6 py-3 text-base rounded-xl shadow-lg hover:shadow-xl transition hover:scale-105 border-2 border-yellow-300 w-full max-w-xs glow-yellow whitespace-normal flex items-center justify-center gap-2"
                 >
-                  <Apple className="h-4 w-4" />
-                  <span className="break-words text-center block">Sleep Foods</span>
+                  <Sparkles className="h-5 w-5" />
+                  Want to fall asleep faster?
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentView(View.Insomnia)}
-                  className="flex-1 w-0 flex items-center justify-center space-x-2 min-h-[48px]"
-                >
-                  <Brain className="h-4 w-4" />
-                  <span className="break-words text-center block">
-                    Insomnia<br />Relief
-                  </span>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentView(View.Sos)}
-                  className="flex-1 w-0 flex items-center justify-center space-x-2 min-h-[48px]"
-                >
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="break-words text-center block">Sleep SOS</span>
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-        {currentView !== View.Calculator && (
-          <motion.div
-            key={currentView}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
-            <Card>
-              <CardHeader className="flex items-center space-x-4">
-                <Button variant="ghost" size="icon" onClick={() => setCurrentView(View.Calculator)}>
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <CardTitle>
-                  {currentView === View.Foods && 'Sleep-Enhancing Foods'}
-                  {currentView === View.Insomnia && 'Insomnia Relief Techniques'}
-                  {currentView === View.Sos && 'Sleep SOS Tips'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {currentView === View.Foods && <SleepFoods />}
-                {currentView === View.Insomnia && <InsomniaRelief />}
-                {currentView === View.Sos && <SleepSOS />}
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+          {currentView === View.Foods || currentView === View.Insomnia || currentView === View.Sos ? (
+            <motion.div
+              key={currentView}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="w-full"
+            >
+              <Card>
+                <CardHeader className="flex items-center space-x-4">
+                  <Button variant="ghost" size="icon" onClick={() => setCurrentView(View.Calculator)}>
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                  <CardTitle>
+                    {currentView === View.Foods && 'Sleep-Enhancing Foods'}
+                    {currentView === View.Insomnia && 'Insomnia Relief Techniques'}
+                    {currentView === View.Sos && 'Sleep SOS Tips'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {currentView === View.Foods && <SleepFoods />}
+                  {currentView === View.Insomnia && <InsomniaRelief />}
+                  {currentView === View.Sos && <SleepSOS />}
+                </CardContent>
+              </Card>
+            </motion.div>
+          ) : null}
+          {currentView === View.FallAsleep && (
+            <motion.div
+              key="fallasleep"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="w-full"
+            >
+              <Card>
+                <CardHeader className="flex items-center space-x-4">
+                  <Button variant="ghost" size="icon" onClick={() => setCurrentView(View.Calculator)}>
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                  <CardTitle>
+                    🌙 Want to fall asleep faster?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-center items-center gap-2 mb-6 flex-wrap mt-2">
+                    <Button
+                      onClick={() => setActiveTab('insomnia')}
+                      className={`px-3 py-1 text-sm ${activeTab === 'insomnia' ? 'bg-primary text-white' : 'bg-zinc-700 text-white'}`}
+                    >
+                      Insomnia Relief
+                    </Button>
+                    <Button
+                      onClick={() => setActiveTab('foods')}
+                      className={`px-3 py-1 text-sm ${activeTab === 'foods' ? 'bg-primary text-white' : 'bg-zinc-700 text-white'}`}
+                    >
+                      Sleep Foods
+                    </Button>
+                    <Button
+                      onClick={() => setActiveTab('sos')}
+                      className={`px-3 py-1 text-sm ${activeTab === 'sos' ? 'bg-primary text-white' : 'bg-zinc-700 text-white'}`}
+                    >
+                      Sleep SOS
+                    </Button>
+                  </div>
+                  <div className="w-full mb-2">
+                    {activeTab === 'insomnia' && <InsomniaRelief />}
+                    {activeTab === 'foods' && <SleepFoods />}
+                    {activeTab === 'sos' && <SleepSOS />}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
