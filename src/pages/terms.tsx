@@ -78,7 +78,7 @@ const Terms = () => {
       </p>
       <h2>7. Contact</h2>
       <p>
-        For questions, contact: <a href="mailto:info@beatsomnia.com" style={{ color: "#6cf" }}>info@beatsomnia.com</a>
+        For questions, contact: <a href="mailto:beatsomniaapp@gmail.com" style={{ color: "#6cf" }}>info@beatsomnia.com</a>
       </p>
       <div style={{ marginTop: "2rem", textAlign: "center", opacity: 0.7 }}>
         © {new Date().getFullYear()} BeatSomnia
