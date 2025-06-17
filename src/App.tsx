@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/ui/Footer"; // Use relative path if alias not set up
-import Terms from './pages/Terms';
+import Terms from "./pages/Terms";
 
 const App = () => (
   <BrowserRouter>
